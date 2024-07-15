@@ -2,15 +2,13 @@
 #include <stdint.h>
 #include <errno.h>
 
-// Structure to hold the RIFF chunk
-typedef struct {
+typedef struct { // riff header
     char ChunkID[4];        // "RIFF" in ASCII (0x52494646 big-endian form)
     uint32_t ChunkSize;     // 4-byte size of the rest of the chunk (file size - 8 bytes)
     char Format[4];         // "WAVE" in ASCII (0x57415645 big-endian form)
 } RiffChunk;
 
-// Structure to hold the fmt chunk
-typedef struct {
+typedef struct { // fmt sub-chunk
     char SubChunk1ID[4];    // "fmt " in ASCII (0x666d7420 big-endian form)
     uint32_t SubChunk1Size; // 4-byte size of rest of "fmt " sub-chunk (16 for PCM)
     uint16_t AudioFormat;   // Audio format code, 1 for PCM (linear quantization)
@@ -21,14 +19,12 @@ typedef struct {
     uint16_t BitsPerSample; // Bits per sample
 } FmtChunk;
 
-// Structure to hold the data chunk
-typedef struct {
+typedef struct { // data sub-chunk
     char SubChunk2ID[4];    // Contains "data" in ASCII form (0x64617461 big-endian form)
     uint32_t SubChunk2Size; // Number of bytes in data: NumSamples * NumChannels * BitsPerSample/8
 } DataChunk;
 
-// Structure to hold the entire WAV file header
-typedef struct {
+typedef struct { // wav chunk
     RiffChunk riff;
     FmtChunk fmt;
     DataChunk data;
@@ -41,6 +37,8 @@ int wav_file_open(const char *filename, WavFile *wav_file) {
         return errno;
     }
 
+    // Could be optimized to read whole chunk at once
+    // or at least to not start reading from the beginning
     if (fread(&wav_file->riff, sizeof(RiffChunk), 1, file) != 1) {
         perror("Failed to read RIFF chunk");
         fclose(file);

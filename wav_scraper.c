@@ -37,20 +37,6 @@ int wav_file_open(const char *filename, WavFile *wav_file) {
         return errno;
     }
 
-    // Could be optimized to read whole chunk at once
-    // or at least to not start reading from the beginning
-    if (fread(&wav_file->riff, sizeof(RiffChunk), 1, file) != 1) {
-        perror("Failed to read RIFF chunk");
-        fclose(file);
-        return errno;
-    }
-
-    if (fread(&wav_file->fmt, sizeof(FmtChunk), 1, file) != 1) {
-        perror("Failed to read fmt chunk");
-        fclose(file);
-        return errno;
-    }
-
     if (fread(&wav_file->data, sizeof(DataChunk), 1, file) != 1) {
         perror("Failed to read data chunk");
         fclose(file);

@@ -63,9 +63,14 @@ int wav_file_open(const char *filename, WavFile *wav_file) {
     return 0;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <wav_file_path>\n", argv[0]);
+        return 1;
+    }
+
     WavFile wav_file;
-    int result = wav_file_open("audio/Kick.wav", &wav_file);
+    int result = wav_file_open(argv[1], &wav_file);
     if (result == 0) {
         printf("Successfully read WAV file header.\n");
         printf("ChunkID: %.4s\n", wav_file.riff.ChunkID);
